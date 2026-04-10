@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Proxy Admin</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+
+<nav>
+  <span class="logo">Proxy Admin</span>
+  <a href="/" class="{{ 'active' if tab=='dashboard' }}">Dashboard</a>
+  <a href="/logs" class="{{ 'active' if tab=='logs' }}">Logs</a>
+  <a href="/cache" class="{{ 'active' if tab=='cache' }}">Cache</a>
+  <a href="/filters" class="{{ 'active' if tab=='filters' }}">Filters</a>
+</nav>
+
+<main>
+
+<!-- ────────────────────── Dashboard ────────────────────── -->
+{% if tab == 'dashboard' %}
+<section id="dashboard">
+  <h1>Dashboard</h1>
+
+  <div class="cards">
+    <div class="card">
+      <h3>Total Requests</h3>
+      <p id="stat-total">&mdash;</p>
+    </div>
+    <div class="card">
+      <h3>Active Connections</h3>
+      <p id="stat-active">&mdash;</p>
+    </div>
+    <div class="card">
+      <h3>Cache Hit Rate</h3>
+      <p id="stat-hitrate">&mdash;</p>
+    </div>
+    <div class="card">
+      <h3>Cached Entries</h3>
+      <p id="stat-entries">&mdash;</p>
+    </div>
+    <div class="card">
+      <h3>Blocked Requests</h3>
+      <p id="stat-blocked">&mdash;</p>
+    </div>
+    <div class="card">
+      <h3>Cache Size</h3>
+      <p id="stat-size">&mdash;</p>
+    </div>
+  </div>
+
+  <h2>Recent Activity</h2>
+  <div class="table-wrap">
+    <table id="recent-logs">
+      <thead>
+        <tr>
+          <th>Time</th><th>Client</th><th>Target</th>
+          <th>Method</th><th>URL</th><th>Status</th><th>Cache</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td colspan="7" class="empty-state"><p>Waiting for requests&hellip;</p></td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<script>
+function refreshDashboard(){
+  fetch('/api/stats').then(r=>r.json()).then(d=>{
+    document.getElementById('stat-total').textContent=d.total_requests;
+    document.getElementById('stat-active').textContent=d.active_connections;
+    document.getElementById('stat-hitrate').textContent=d.hit_rate+'%';
+    document.getElementById('stat-entries').textContent=d.entry_count;
+    document.getElementById('stat-blocked').textContent=d.blocked_requests;
+    document.getElementById('stat-size').textContent=formatBytes(d.total_size);
+  });
+  fetch('/api/logs?n=20').then(r=>r.json()).then(logs=>{
+    const tb=document.querySelector('#recent-logs tbody');
+    if(!logs.length){
+      tb.innerHTML='<tr><td colspan="7" class="empty-state"><p>Waiting for requests&hellip;</p></td></tr>';
+      return;
+    }
+    tb.innerHTML='';
+    logs.reverse().forEach(l=>{
+      const tr=document.createElement('tr');
+      if(l.blocked) tr.classList.add('blocked-row');
+      tr.innerHTML=`<td>${l.timestamp}</td>
+        <td>${l.client_ip}:${l.client_port}</td>
+        <td>${l.target_host}:${l.target_port}</td>
+        <td><span class="badge badge-method">${l.method}</span></td>
+        <td class="url-cell" title="${esc(l.url)}">${esc(truncate(l.url,55))}</td>
+        <td>${l.status_code}</td>
+        <td>${l.cache_hit?'<span class=\"badge badge-hit\">HIT</span>':''}</td>`;
+      tb.appendChild(tr);
+    });
+  });
+}
+function formatBytes(b){if(!b)return '0 B';const u=['B','KB','MB','GB'];let i=0;while(b>=1024&&i<u.length-1){b/=1024;i++;}return b.toFixed(1)+' '+u[i];}
+function truncate(s,n){return s&&s.length>n?s.slice(0,n)+'\u2026':s||'';}
+function esc(s){if(!s)return '';const d=document.createElement('div');d.textContent=s;return d.innerHTML;}
+refreshDashboard();
+setInterval(refreshDashboard,5000);
+</script>
+{% endif %}
+
+<!-- ────────────────────── Logs ────────────────────── -->
+{% if tab == 'logs' %}
+<section id="logs">
+  <h1>Request Logs</h1>
+  <div class="table-wrap">
+    <table id="log-table">
+      <thead>
+        <tr>
+          <th>Timestamp</th><th>Client</th><th>Target</th>
+          <th>Method</th><th>URL</th><th>Status</th>
+          <th>Size</th><th>Cache</th><th>Error</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td colspan="9" class="empty-state"><p>No logs yet&hellip;</p></td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<script>
+function refreshLogs(){
+  fetch('/api/logs?n=500').then(r=>r.json()).then(logs=>{
+    const tb=document.querySelector('#log-table tbody');
+    if(!logs.length){
+      tb.innerHTML='<tr><td colspan="9" class="empty-state"><p>No logs yet&hellip;</p></td></tr>';
+      return;
+    }
+    tb.innerHTML='';
+    logs.reverse().forEach(l=>{
+      const tr=document.createElement('tr');
+      if(l.blocked) tr.classList.add('blocked-row');
+      if(l.error_message) tr.classList.add('error-row');
+      tr.innerHTML=`<td>${l.timestamp}</td>
+        <td>${l.client_ip}:${l.client_port}</td>
+        <td>${l.target_host}:${l.target_port}</td>
+        <td><span class="badge badge-method">${l.method}</span></td>
+        <td class="url-cell" title="${esc(l.url)}">${esc(truncate(l.url,45))}</td>
+        <td>${l.status_code}</td>
+        <td>${formatBytes(l.response_size)}</td>
+        <td>${l.cache_hit?'<span class=\"badge badge-hit\">HIT</span>':''}${l.blocked?'<span class=\"badge badge-blocked\">BLOCKED</span>':''}</td>
+        <td class="err-cell">${esc(l.error_message||'')}</td>`;
+      tb.appendChild(tr);
+    });
+  });
+}
+function formatBytes(b){if(!b)return '—';const u=['B','KB','MB','GB'];let i=0;while(b>=1024&&i<u.length-1){b/=1024;i++;}return b.toFixed(1)+' '+u[i];}
+function truncate(s,n){return s&&s.length>n?s.slice(0,n)+'\u2026':s||'';}
+function esc(s){if(!s)return '';const d=document.createElement('div');d.textContent=s;return d.innerHTML;}
+refreshLogs();
+setInterval(refreshLogs,5000);
+</script>
+{% endif %}
+
+<!-- ────────────────────── Cache ────────────────────── -->
+{% if tab == 'cache' %}
+<section id="cache">
+  <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;margin-bottom:1.25rem;">
+    <h1 style="margin-bottom:0">Cached Responses</h1>
+    <form method="POST" action="/api/cache/clear">
+      <button type="submit" class="btn btn-danger btn-sm">Clear All Cache</button>
+    </form>
+  </div>
+  <div class="table-wrap">
+    <table id="cache-table">
+      <thead>
+        <tr><th>URL</th><th>Size</th><th>Cached At</th><th>TTL Left</th><th>Action</th></tr>
+      </thead>
+      <tbody>
+        <tr><td colspan="5" class="empty-state"><p>Cache is empty</p></td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<script>
+function refreshCache(){
+  fetch('/api/cache').then(r=>r.json()).then(entries=>{
+    const tb=document.querySelector('#cache-table tbody');
+    if(!entries.length){
+      tb.innerHTML='<tr><td colspan="5" class="empty-state"><p>Cache is empty</p></td></tr>';
+      return;
+    }
+    tb.innerHTML='';
+    entries.forEach(e=>{
+      const tr=document.createElement('tr');
+      tr.innerHTML=`<td class="url-cell" title="${esc(e.url)}">${esc(truncate(e.url,65))}</td>
+        <td>${formatBytes(e.size)}</td>
+        <td>${e.cached_at}</td>
+        <td>${e.ttl_remaining}s</td>
+        <td>
+          <form method="POST" action="/api/cache/invalidate" style="display:inline">
+            <input type="hidden" name="url" value="${esc(e.url)}">
+            <button type="submit" class="btn btn-sm btn-outline">Remove</button>
+          </form>
+        </td>`;
+      tb.appendChild(tr);
+    });
+  });
+}
+function formatBytes(b){if(!b)return '0 B';const u=['B','KB','MB','GB'];let i=0;while(b>=1024&&i<u.length-1){b/=1024;i++;}return b.toFixed(1)+' '+u[i];}
+function truncate(s,n){return s&&s.length>n?s.slice(0,n)+'\u2026':s||'';}
+function esc(s){if(!s)return '';const d=document.createElement('div');d.textContent=s;return d.innerHTML;}
+refreshCache();
+setInterval(refreshCache,5000);
+</script>
+{% endif %}
+
+<!-- ────────────────────── Filters ────────────────────── -->
+{% if tab == 'filters' %}
+<section id="filters">
+  <h1>Blacklist / Whitelist</h1>
+
+  <div class="section-card" id="filter-content">
+    <p class="muted">Loading&hellip;</p>
+  </div>
+
+  <div class="section-card">
+    <h2 style="margin-top:0">Add Rule</h2>
+    <form method="POST" action="/api/filters/add" class="inline-form">
+      <select name="rule_type">
+        <option value="blacklist">Blacklist</option>
+        <option value="whitelist">Whitelist</option>
+      </select>
+      <input type="text" name="pattern" placeholder="e.g. *.example.com" required>
+      <button type="submit" class="btn">Add Rule</button>
+    </form>
+  </div>
+</section>
+
+<script>
+function refreshFilters(){
+  fetch('/api/filters').then(r=>r.json()).then(data=>{
+    const div=document.getElementById('filter-content');
+    let html=`<div style="display:flex;align-items:center;gap:1rem;flex-wrap:wrap;margin-bottom:1.25rem;">
+      <span style="font-weight:600;">Current Mode:</span>
+      <form method="POST" action="/api/filters/mode" class="inline-form">
+        <select name="mode">
+          <option value="blacklist" ${data.mode==='blacklist'?'selected':''}>Blacklist</option>
+          <option value="whitelist" ${data.mode==='whitelist'?'selected':''}>Whitelist</option>
+        </select>
+        <button type="submit" class="btn btn-sm">Set Mode</button>
+      </form>
+    </div>`;
+    ['blacklist','whitelist'].forEach(t=>{
+      html+=`<h2>${t.charAt(0).toUpperCase()+t.slice(1)}</h2>`;
+      const list=data[t]||[];
+      if(!list.length){html+=`<p class="muted">No entries.</p>`;return;}
+      html+=`<ul class="rule-list">`;
+      list.forEach(p=>{
+        html+=`<li>
+          <span style="flex:1">${esc(p)}</span>
+          <form method="POST" action="/api/filters/remove" style="display:inline">
+            <input type="hidden" name="rule_type" value="${t}">
+            <input type="hidden" name="pattern" value="${esc(p)}">
+            <button type="submit" class="btn btn-sm btn-danger">Remove</button>
+          </form></li>`;
+      });
+      html+=`</ul>`;
+    });
+    div.innerHTML=html;
+  });
+}
+function esc(s){if(!s)return '';const d=document.createElement('div');d.textContent=s;return d.innerHTML;}
+refreshFilters();
+</script>
+{% endif %}
+
+</main>
+</body>
+</html>

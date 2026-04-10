@@ -1,0 +1,7 @@
+{
+  "mode": "whitelist",
+  "blacklist": [
+    "example.com"
+  ],
+  "whitelist": []
+}
