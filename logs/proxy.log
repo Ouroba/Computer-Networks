@@ -1,0 +1,15 @@
+2026-04-10 20:53:33  [2026-04-10 17:53:33 UTC]  127.0.0.1:59589  -> neverssl.com:80  GET  http://neverssl.com/  status=403  size=0  BLOCKED
+2026-04-10 20:53:49  [2026-04-10 17:53:49 UTC]  127.0.0.1:61288  -> neverssl.com:80  GET  http://neverssl.com/  status=403  size=0  BLOCKED
+2026-04-10 20:55:31  [2026-04-10 17:55:31 UTC]  127.0.0.1:59070  -> neverssl.com:80  GET  http://neverssl.com/  status=403  size=0  BLOCKED
+2026-04-10 21:05:57  [2026-04-10 18:05:57 UTC]  127.0.0.1:62430  -> neverssl.com:80  GET  http://neverssl.com/  status=403  size=0  BLOCKED
+2026-04-10 21:12:46  [2026-04-10 18:12:46 UTC]  127.0.0.1:55973  -> neverssl.com:80  GET  http://neverssl.com/  status=403  size=0  BLOCKED
+2026-04-10 21:18:09  [2026-04-10 18:18:09 UTC]  127.0.0.1:63242  -> neverssl.com:80  GET  http://neverssl.com/  status=403  size=0  BLOCKED
+2026-04-10 21:22:21  [2026-04-10 18:22:21 UTC]  127.0.0.1:54570  -> neverssl.com:80  GET  http://neverssl.com/  status=403  size=0  BLOCKED
+2026-04-10 21:22:26  [2026-04-10 18:22:26 UTC]  127.0.0.1:54571  -> neverssl.com:80  GET  http://neverssl.com/  status=403  size=0  BLOCKED
+2026-04-10 21:24:06  [2026-04-10 18:24:06 UTC]  127.0.0.1:63689  -> neverssl.com:80  GET  http://neverssl.com/  status=403  size=0  BLOCKED
+2026-04-10 21:24:46  [2026-04-10 18:24:46 UTC]  127.0.0.1:63690  -> neverssl.com:80  GET  http://neverssl.com/  status=403  size=0  BLOCKED
+2026-04-10 21:36:52  [2026-04-10 18:36:52 UTC]  127.0.0.1:62533  -> example.com:80  GET  http://example.com/  status=502  size=0  ERROR: Target server unreachable
+2026-04-10 21:37:44  [2026-04-10 18:37:44 UTC]  127.0.0.1:50409  -> example.com:80  GET  http://example.com/  status=403  size=0  BLOCKED
+2026-04-10 21:39:55  [2026-04-10 18:39:55 UTC]  127.0.0.1:62964  -> neverssl.com:80  GET  http://neverssl.com/  status=502  size=0  ERROR: Target server unreachable
+2026-04-10 21:40:24  [2026-04-10 18:40:24 UTC]  127.0.0.1:54689  -> google.com:80  GET  http://google.com/  status=403  size=0  BLOCKED
+2026-04-10 21:40:43  [2026-04-10 18:40:43 UTC]  127.0.0.1:54484  -> google.com:80  GET  http://google.com/  status=301  size=792

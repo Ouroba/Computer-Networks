@@ -33,7 +33,7 @@ class FilterManager:
         self._data: dict = {}
         self._load()
 
-    # ── Query ────────────────────────────────────────────────────────────
+
 
     def is_allowed(self, host: str, url: str = "") -> bool:
         """
@@ -80,8 +80,7 @@ class FilterManager:
         with self._lock:
             return json.loads(json.dumps(self._data))
 
-    # ── Internal helpers ─────────────────────────────────────────────────
-
+    
     @staticmethod
     def _matches(host: str, patterns: list[str]) -> bool:
         """Check if *host* matches any pattern (supports fnmatch wildcards)."""
@@ -113,5 +112,4 @@ class FilterManager:
             pass
 
 
-# Singleton used across the proxy
 filters = FilterManager()

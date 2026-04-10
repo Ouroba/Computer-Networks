@@ -74,7 +74,7 @@ def log_request(
         "error_message": error_message,
         "blocked": blocked,
     }
-
+    print("LOG:", method, url, status_code, blocked)
     # File log — single human-readable line
     parts = [
         f"[{timestamp}]",
