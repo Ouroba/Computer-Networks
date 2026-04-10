@@ -13,3 +13,4 @@
 2026-04-10 21:39:55  [2026-04-10 18:39:55 UTC]  127.0.0.1:62964  -> neverssl.com:80  GET  http://neverssl.com/  status=502  size=0  ERROR: Target server unreachable
 2026-04-10 21:40:24  [2026-04-10 18:40:24 UTC]  127.0.0.1:54689  -> google.com:80  GET  http://google.com/  status=403  size=0  BLOCKED
 2026-04-10 21:40:43  [2026-04-10 18:40:43 UTC]  127.0.0.1:54484  -> google.com:80  GET  http://google.com/  status=301  size=792
+2026-04-10 21:41:01  [2026-04-10 18:41:01 UTC]  127.0.0.1:57242  -> google.com:80  GET  http://google.com/  status=301  size=792  CACHE-HIT
