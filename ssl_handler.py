@@ -8,7 +8,7 @@ Two operating modes:
      per-host certificate signed by the proxy CA, decrypt traffic on both
      sides, and pass clear-text HTTP through the cache / filter pipeline.
 
-Contributed by: 
+Contributed by: Shahd
 """
 
 import select
@@ -25,7 +25,7 @@ from filter_manager import filters
 _CONNECT_OK = b"HTTP/1.1 200 Connection Established\r\n\r\n"
 
 
-# ── Public entry point ───────────────────────────────────────────────────────
+#  Public entry point
 
 def handle_connect(client_sock: socket.socket, client_addr: tuple,
                    host: str, port: int):
@@ -40,7 +40,7 @@ def handle_connect(client_sock: socket.socket, client_addr: tuple,
         _handle_tunnel(client_sock, client_addr, host, port)
 
 
-# ── Tunnel mode (opaque relay) ───────────────────────────────────────────────
+#  Tunnel mode (opaque relay) 
 
 def _handle_tunnel(client_sock: socket.socket, client_addr: tuple,
                    host: str, port: int):
@@ -100,7 +100,7 @@ def _relay(sock_a: socket.socket, sock_b: socket.socket):
                 pass
 
 
-# ── MITM mode (decrypt, inspect, re-encrypt) ────────────────────────────────
+#  MITM mode (decrypt, inspect, re-encrypt) 
 
 def _handle_mitm(client_sock: socket.socket, client_addr: tuple,
                  host: str, port: int):

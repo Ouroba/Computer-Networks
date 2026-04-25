@@ -8,7 +8,7 @@ Responsibilities:
   - Delegate HTTPS CONNECT requests to ssl_handler.
   - Start the admin web interface in a background daemon thread.
 
-Contributed by: 
+Contributed by: Ourouba
 """
 
 import socket
@@ -35,33 +35,33 @@ def _import_ssl_handler():
         ssl_handler = None
 
 
-# ── Response helpers ─────────────────────────────────────────────────────────
+#  Response helpers
 
 _BLOCKED_RESPONSE = (
     b"HTTP/1.1 403 Forbidden\r\n"
     b"Content-Type: text/html; charset=utf-8\r\n"
     b"Connection: close\r\n\r\n"
-    b"<html><body><h1>403 Forbidden</h1>"
-    b"<p>This domain has been blocked by the proxy.</p></body></html>"
+    b"403 Forbidden.\r\n"
+    b"This domain has been blocked by the proxy."
 )
 
 _BAD_REQUEST = (
     b"HTTP/1.1 400 Bad Request\r\n"
     b"Content-Type: text/html; charset=utf-8\r\n"
     b"Connection: close\r\n\r\n"
-    b"<html><body><h1>400 Bad Request</h1></body></html>"
+    b"400 Bad Request"
 )
 
 _BAD_GATEWAY = (
     b"HTTP/1.1 502 Bad Gateway\r\n"
     b"Content-Type: text/html; charset=utf-8\r\n"
     b"Connection: close\r\n\r\n"
-    b"<html><body><h1>502 Bad Gateway</h1>"
-    b"<p>Could not reach the target server.</p></body></html>"
+    b"502 Bad Gateway\r\n"
+    b"Could not reach the target server."
 )
 
 
-# ── Per-client handler ───────────────────────────────────────────────────────
+#  Per-client handler 
 
 def handle_client(client_sock: socket.socket, client_addr: tuple):
     """Handle a single client connection (runs in its own thread)."""
@@ -89,7 +89,7 @@ def handle_client(client_sock: socket.socket, client_addr: tuple):
         port = parsed["port"]
         url = parsed["url"]
 
-        # ── Blacklist / whitelist check ──────────────────────────────────
+        #  Blacklist / whitelist check 
         if not filters.is_allowed(host, url):
             client_sock.sendall(_BLOCKED_RESPONSE)
             proxy_logger.log_request(
@@ -99,12 +99,12 @@ def handle_client(client_sock: socket.socket, client_addr: tuple):
             )
             return
 
-        # ── HTTPS CONNECT ────────────────────────────────────────────────
+        #  HTTPS CONNECT 
         if method == "CONNECT":
             _handle_connect(client_sock, client_addr, parsed)
             return
 
-        # ── Cache lookup (HTTP only) ─────────────────────────────────────
+        #  Cache lookup (HTTP only)
         if method == "GET":
             cached = cache.get(url)
             if cached is not None:
@@ -119,7 +119,7 @@ def handle_client(client_sock: socket.socket, client_addr: tuple):
                 )
                 return
 
-        # ── Forward to target server ─────────────────────────────────────
+        #  Forward to target server 
         forward_data = request_parser.rebuild_request(parsed)
         response = _forward_request(host, port, forward_data)
 
@@ -133,7 +133,7 @@ def handle_client(client_sock: socket.socket, client_addr: tuple):
             )
             return
 
-        # ── Cache storage (GET responses only) ───────────────────────────
+        # Cache storage (GET responses only) 
         status_code = _extract_status(response)
         if method == "GET" and 200 <= status_code < 400:
             resp_headers = _parse_response_headers(response)
@@ -166,7 +166,7 @@ def handle_client(client_sock: socket.socket, client_addr: tuple):
         proxy_logger.connection_closed()
 
 
-# ── HTTPS CONNECT delegation ─────────────────────────────────────────────────
+# HTTPS CONNECT delegation 
 
 def _handle_connect(client_sock, client_addr, parsed):
     """Delegate a CONNECT tunnel to ssl_handler (tunnel or MITM)."""
@@ -187,7 +187,7 @@ def _handle_connect(client_sock, client_addr, parsed):
     )
 
 
-# ── Low-level networking helpers ─────────────────────────────────────────────
+#  Low-level networking helpers
 
 def _recv_request(sock: socket.socket) -> bytes:
     """
@@ -268,7 +268,7 @@ def _parse_response_headers(response: bytes) -> dict:
     return headers
 
 
-# ── Server lifecycle ─────────────────────────────────────────────────────────
+#  Server lifecycle 
 
 def start_proxy():
     """Bind, listen, and accept connections in an infinite loop."""

@@ -1,5 +1,5 @@
 """
-Flask-based web admin interface for the proxy server.
+ web admin interface for the proxy server.
 
 Runs on a separate port (config.ADMIN_PORT) in a daemon thread and provides:
   - Dashboard with live stats (total requests, cache hit-rate, active conns).
@@ -7,7 +7,7 @@ Runs on a separate port (config.ADMIN_PORT) in a daemon thread and provides:
   - Cache inspector with per-entry invalidation and full-cache clear.
   - Blacklist / whitelist editor.
 
-Contributed by: 
+Contributed by: Ourouba
 """
 
 import os
@@ -26,7 +26,7 @@ app = Flask(
 )
 
 
-# ── Pages ────────────────────────────────────────────────────────────────────
+# Pages 
 
 @app.route("/")
 def dashboard():
@@ -48,7 +48,7 @@ def filters_page():
     return render_template("admin.html", tab="filters")
 
 
-# ── JSON APIs (consumed by the dashboard JS) ─────────────────────────────────
+# JSON APIs
 
 @app.route("/api/stats")
 def api_stats():
@@ -112,8 +112,7 @@ def api_filters_mode():
     return redirect(url_for("filters_page"))
 
 
-# ── Launcher (called from proxy_server in a daemon thread) ───────────────────
-
+# Launcher
 def start_admin():
     app.run(
         host=config.ADMIN_HOST,

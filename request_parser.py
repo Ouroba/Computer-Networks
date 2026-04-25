@@ -7,7 +7,7 @@ Handles:
     stripping proxy-specific headers, setting Host).
   - Extracting host/port from CONNECT requests.
 
-Contributed by: 
+Contributed by: Ourouba
 """
 
 from urllib.parse import urlparse

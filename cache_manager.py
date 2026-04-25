@@ -7,7 +7,7 @@ Features:
   - LRU-style eviction when MAX_CACHE_SIZE is exceeded.
   - Exposes stats (hits, misses, size) for the admin interface.
 
-Contributed by:
+Contributed by: Josephina
 """
 
 import threading
@@ -30,7 +30,7 @@ class CacheManager:
         self._hits = 0
         self._misses = 0
 
-    # ── Public API ───────────────────────────────────────────────────────
+    #  Public API 
 
     def get(self, url: str) -> bytes | None:
         """Return cached response bytes if present and not expired."""
@@ -85,7 +85,7 @@ class CacheManager:
         with self._lock:
             self._store.clear()
 
-    # ── Stats / admin helpers ────────────────────────────────────────────
+    #  Stats / admin helpers 
 
     def get_stats(self) -> dict:
         with self._lock:
@@ -114,7 +114,7 @@ class CacheManager:
                 for url, entry in self._store.items()
             ]
 
-    # ── Internal helpers ─────────────────────────────────────────────────
+    #  Internal helpers 
 
     def _resolve_ttl(self, headers: dict) -> int:
         """Determine TTL from Cache-Control max-age, Expires, or default."""

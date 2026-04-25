@@ -7,7 +7,7 @@ Supports:
   - Two modes: "blacklist" (block listed domains) or "whitelist" (allow only listed)
   - Runtime add / remove with automatic persistence to data/blacklist.json.
 
-Contributed by: 
+Contributed by: Josephina
 """
 
 import fnmatch
@@ -49,7 +49,7 @@ class FilterManager:
             else:
                 return self._matches(host, self._data.get("whitelist", []))
 
-    # ── Mutation ─────────────────────────────────────────────────────────
+    #  Mutation 
 
     def add_rule(self, rule_type: str, pattern: str):
         """Add a pattern to the blacklist or whitelist."""

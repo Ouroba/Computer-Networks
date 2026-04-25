@@ -18,7 +18,7 @@
 
 <main>
 
-<!-- ────────────────────── Dashboard ────────────────────── -->
+
 {% if tab == 'dashboard' %}
 <section id="dashboard">
   <h1>Dashboard</h1>
@@ -105,7 +105,7 @@ setInterval(refreshDashboard,5000);
 </script>
 {% endif %}
 
-<!-- ────────────────────── Logs ────────────────────── -->
+
 {% if tab == 'logs' %}
 <section id="logs">
   <h1>Request Logs</h1>
@@ -159,7 +159,7 @@ setInterval(refreshLogs,5000);
 </script>
 {% endif %}
 
-<!-- ────────────────────── Cache ────────────────────── -->
+
 {% if tab == 'cache' %}
 <section id="cache">
   <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;margin-bottom:1.25rem;">
@@ -213,7 +213,7 @@ setInterval(refreshCache,5000);
 </script>
 {% endif %}
 
-<!-- ────────────────────── Filters ────────────────────── -->
+
 {% if tab == 'filters' %}
 <section id="filters">
   <h1>Blacklist / Whitelist</h1>

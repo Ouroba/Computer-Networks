@@ -6,7 +6,7 @@ Provides:
   - In-memory ring buffer of the last N structured entries for the admin UI.
   - Thread-safe access to both stores.
 
-Contributed by: 
+Contributed by: Ourouba
 """
 
 import logging
@@ -17,10 +17,10 @@ from datetime import datetime, timezone
 
 import config
 
-# ── Ensure log directory exists ──────────────────────────────────────────────
+
 os.makedirs(config.LOG_DIR, exist_ok=True)
 
-# ── Standard Python logger (file output) ────────────────────────────────────
+#  (file output)
 _file_logger = logging.getLogger("proxy")
 _file_logger.setLevel(logging.INFO)
 
@@ -30,11 +30,11 @@ _handler.setFormatter(
 )
 _file_logger.addHandler(_handler)
 
-# ── In-memory ring buffer for admin UI ───────────────────────────────────────
+#  In-memory ring buffer for admin UI 
 _ring: deque[dict] = deque(maxlen=config.LOG_RING_SIZE)
 _ring_lock = threading.Lock()
 
-# ── Counters ─────────────────────────────────────────────────────────────────
+
 _counters_lock = threading.Lock()
 _counters = {
     "total_requests": 0,
@@ -75,7 +75,7 @@ def log_request(
         "blocked": blocked,
     }
     print("LOG:", method, url, status_code, blocked)
-    # File log — single human-readable line
+    # single human-readable line
     parts = [
         f"[{timestamp}]",
         f"{client_ip}:{client_port}",
@@ -93,11 +93,11 @@ def log_request(
         parts.append(f"ERROR: {error_message}")
     _file_logger.info("  ".join(parts))
 
-    # Ring buffer
+   
     with _ring_lock:
         _ring.append(entry)
 
-    # Counters
+   
     with _counters_lock:
         _counters["total_requests"] += 1
         if blocked:
@@ -111,7 +111,7 @@ def get_recent_logs(n: int = 100) -> list[dict]:
     return items[-n:]
 
 
-# ── Active-connection tracking ───────────────────────────────────────────────
+
 
 def connection_opened():
     with _counters_lock:
