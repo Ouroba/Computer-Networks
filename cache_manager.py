@@ -7,7 +7,7 @@ Features:
   - LRU-style eviction when MAX_CACHE_SIZE is exceeded.
   - Exposes stats (hits, misses, size) for the admin interface.
 
-Contributed by: Josephina Sakr (Team Member 2)
+Contributed by: Josephina Sakr 
 """
 
 # ── Standard library imports ──────────────────────────────────────────────────
