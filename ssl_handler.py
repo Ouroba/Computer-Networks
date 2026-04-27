@@ -25,8 +25,6 @@ from filter_manager import filters
 _CONNECT_OK = b"HTTP/1.1 200 Connection Established\r\n\r\n"
 
 
-#  Public entry point
-
 def handle_connect(client_sock: socket.socket, client_addr: tuple,
                    host: str, port: int):
     """
@@ -39,8 +37,6 @@ def handle_connect(client_sock: socket.socket, client_addr: tuple,
     else:
         _handle_tunnel(client_sock, client_addr, host, port)
 
-
-#  Tunnel mode (opaque relay) 
 
 def _handle_tunnel(client_sock: socket.socket, client_addr: tuple,
                    host: str, port: int):
@@ -100,8 +96,6 @@ def _relay(sock_a: socket.socket, sock_b: socket.socket):
                 pass
 
 
-#  MITM mode (decrypt, inspect, re-encrypt) 
-
 def _handle_mitm(client_sock: socket.socket, client_addr: tuple,
                  host: str, port: int):
     """
@@ -132,10 +126,8 @@ def _handle_mitm(client_sock: socket.socket, client_addr: tuple,
 
     cert_path, key_path = generate_host_cert(host)
 
-    # Tell the client the tunnel is up (before we wrap in TLS)
     client_sock.sendall(_CONNECT_OK)
 
-    # Wrap the client-side socket with our generated cert
     server_ctx = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
     server_ctx.load_cert_chain(certfile=cert_path, keyfile=key_path)
     try:
@@ -150,7 +142,6 @@ def _handle_mitm(client_sock: socket.socket, client_addr: tuple,
         client_sock.close()
         return
 
-    # Open a real TLS connection to the target
     target_ctx = ssl.create_default_context()
     raw_target = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     raw_target.settimeout(config.SOCKET_TIMEOUT)
@@ -168,7 +159,6 @@ def _handle_mitm(client_sock: socket.socket, client_addr: tuple,
         raw_target.close()
         return
 
-    # Read decrypted request from client, process, and forward
     try:
         _mitm_relay(client_tls, target_tls, client_addr, host, port)
     finally:
@@ -193,12 +183,10 @@ def _mitm_relay(client_tls, target_tls, client_addr, host, port):
         if parsed is None:
             return
 
-        # Override host/port from the CONNECT target
         parsed["host"] = host
         parsed["port"] = port
         url = f"https://{host}{parsed['path']}"
 
-        # Filter check
         if not filters.is_allowed(host, url):
             client_tls.sendall(
                 b"HTTP/1.1 403 Forbidden\r\nConnection: close\r\n\r\n"
@@ -211,7 +199,6 @@ def _mitm_relay(client_tls, target_tls, client_addr, host, port):
             )
             return
 
-        # Cache check (GET only)
         if parsed["method"] == "GET":
             cached = cache.get(url)
             if cached is not None:

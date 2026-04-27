@@ -18,7 +18,6 @@ import config
 
 os.makedirs(config.CERTS_DIR, exist_ok=True)
 
-#  CA generation 
 
 def _ensure_ca() -> tuple[crypto.X509, crypto.PKey]:
     """Return (ca_cert, ca_key), creating them if they do not exist yet."""
@@ -59,8 +58,6 @@ def _ensure_ca() -> tuple[crypto.X509, crypto.PKey]:
 
     return ca_cert, ca_key
 
-
-#  Per-host certificate generation
 
 def generate_host_cert(hostname: str) -> tuple[str, str]:
     """
